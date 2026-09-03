@@ -11,13 +11,14 @@
    ============================================================ */
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:000000000000"
+  apiKey: "AIzaSyA0Ybprbv8rrv54uph7cvV0Oj3nUNLXm6s",
+  authDomain: "vexien-3fb32.firebaseapp.com",
+  databaseURL: "https://vexien-3fb32-default-rtdb.firebaseio.com",
+  projectId: "vexien-3fb32",
+  storageBucket: "vexien-3fb32.firebasestorage.app",
+  messagingSenderId: "135994303501",
+  appId: "1:135994303501:web:106f5593826bc0d02a6144",
+  measurementId: "G-4Y8K0NBTJH"
 };
 
 /* True only when a real config is present AND the Firebase SDK loaded */
