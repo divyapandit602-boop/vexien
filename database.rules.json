@@ -1,0 +1,77 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    "meals": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "workouts": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "weight_logs": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "step_logs": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "water_logs": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "custom_foods": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "favorites": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "meal_plans": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "user_challenges": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "user_achievements": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+    "notifications": {
+      ".read": "auth != null",
+      "$id": { ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)" }
+    },
+
+    "social_connections": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid || newData.child('friend_id').val() == auth.uid || data.child('friend_id').val() == auth.uid)"
+      }
+    },
+    "social_posts": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && (newData.child('user_id').val() == auth.uid || data.child('user_id').val() == auth.uid)"
+      }
+    },
+    "challenge_comments": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    "food_items":   { ".read": true, ".write": false },
+    "recipes":      { ".read": true, ".write": false },
+    "challenges":   { ".read": true, ".write": false },
+    "achievements": { ".read": true, ".write": false }
+  }
+}

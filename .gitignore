@@ -1,0 +1,19 @@
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Dependencies & builds (none today, future-proofing)
+node_modules/
+dist/
+build/
+
+# Local environment overrides — never commit real keys if you split them out
+.env
+.env.local
+firebase-config.local.js
+
+# Logs
+*.log

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#87CEEB">
+<meta name="description" content="VEXIEN — Track diet, workouts, steps, weight, challenges and more. Your complete fitness companion.">
+<title>VEXIEN — Fitness Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2387CEEB'/><stop offset='1' stop-color='%23B0E0E6'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><text x='50' y='68' font-size='48' text-anchor='middle' fill='%23333333' font-family='Arial' font-weight='bold'>V</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<!-- Chart.js: local copy first, CDN fallback -->
+<script src="assets/chart.umd.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';document.head.appendChild(s);"></script>
+<!-- Firebase SDK (compat). If these fail to load, VEXIEN automatically runs in Local Demo Mode. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body data-theme="light">
+
+<!-- ===================== SPLASH ===================== -->
+<div id="splash">
+  <div class="splash-logo">V</div>
+  <div class="splash-name">VEXIEN</div>
+  <div class="splash-sub">Your fitness, beautifully tracked.</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- ===================== AUTH SCREEN ===================== -->
+<div id="auth-screen" class="screen hidden">
+  <div class="auth-wrap">
+    <div class="auth-hero">
+      <div class="auth-logo">V</div>
+      <h1 class="auth-brand">VEXIEN</h1>
+      <p class="auth-tagline">Track meals • Log workouts • Count steps<br>Crush challenges • Reach your goals</p>
+      <div class="auth-features">
+        <div class="auth-feature">🍎 500+ food database</div>
+        <div class="auth-feature">🏋️ 100+ exercises</div>
+        <div class="auth-feature">📊 Smart analytics</div>
+        <div class="auth-feature">🏆 Challenges &amp; badges</div>
+      </div>
+      <div id="backend-status" class="backend-status"></div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button type="button" id="tab-login" class="auth-tab active">Login</button>
+        <button type="button" id="tab-signup" class="auth-tab">Sign Up</button>
+        <button type="button" id="tab-forgot" class="auth-tab">Forgot Password</button>
+      </div>
+
+      <form id="login-form" class="auth-form" novalidate>
+        <div id="login-error" class="form-error hidden"></div>
+        <label class="field"><span>Email</span>
+          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required>
+        </label>
+        <label class="field"><span>Password</span>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Login →</button>
+        <p class="auth-hint" id="demo-hint"></p>
+      </form>
+
+      <form id="signup-form" class="auth-form hidden" novalidate>
+        <div id="signup-error" class="form-error hidden"></div>
+        <label class="field"><span>Full name</span>
+          <input type="text" id="signup-name" placeholder="Alex Sharma" autocomplete="name" required>
+        </label>
+        <label class="field"><span>Email</span>
+          <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" required>
+        </label>
+        <label class="field"><span>Password</span>
+          <input type="password" id="signup-password" placeholder="Min 6 characters" autocomplete="new-password" required>
+        </label>
+        <label class="field"><span>Confirm password</span>
+          <input type="password" id="signup-password2" placeholder="Repeat password" autocomplete="new-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Create account →</button>
+      </form>
+
+      <form id="forgot-form" class="auth-form hidden" novalidate>
+        <div id="forgot-error" class="form-error hidden"></div>
+        <p class="auth-note">Enter your email and we'll help you reset your password.</p>
+        <label class="field"><span>Email</span>
+          <input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email" required>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Send reset</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ONBOARDING / PROFILE SETUP ===================== -->
+<div id="onboarding-screen" class="screen hidden">
+  <div class="ob-wrap">
+    <div class="ob-header">
+      <div class="ob-logo">V</div>
+      <h2>Set up your profile</h2>
+      <p>We use this to calculate your daily calorie &amp; macro targets.</p>
+      <div class="ob-dots">
+        <span class="ob-dot active" data-step="1"></span>
+        <span class="ob-dot" data-step="2"></span>
+        <span class="ob-dot" data-step="3"></span>
+      </div>
+    </div>
+
+    <form id="onboarding-form" novalidate>
+      <div class="ob-step active" id="ob-step-1">
+        <div class="field"><span>Gender</span>
+          <div class="choice-row" id="ob-gender">
+            <button type="button" class="choice" data-val="male">👨 Male</button>
+            <button type="button" class="choice" data-val="female">👩 Female</button>
+            <button type="button" class="choice" data-val="other">🌈 Other</button>
+          </div>
+        </div>
+        <label class="field"><span>Age (years)</span>
+          <input type="number" id="ob-age" min="10" max="100" placeholder="25" inputmode="numeric">
+        </label>
+      </div>
+
+      <div class="ob-step" id="ob-step-2">
+        <label class="field"><span>Height (cm)</span>
+          <input type="number" id="ob-height" min="100" max="250" step="0.5" placeholder="170" inputmode="decimal">
+        </label>
+        <label class="field"><span>Current weight (kg)</span>
+          <input type="number" id="ob-weight" min="30" max="300" step="0.1" placeholder="70" inputmode="decimal">
+        </label>
+      </div>
+
+      <div class="ob-step" id="ob-step-3">
+        <div class="field"><span>Fitness goal</span>
+          <div class="choice-row" id="ob-goal">
+            <button type="button" class="choice" data-val="lose">🔥 Lose weight</button>
+            <button type="button" class="choice" data-val="maintain">⚖️ Maintain</button>
+            <button type="button" class="choice" data-val="gain">💪 Gain muscle</button>
+          </div>
+        </div>
+        <div class="field"><span>Activity level</span>
+          <select id="ob-activity">
+            <option value="sedentary">Sedentary — desk job, little exercise</option>
+            <option value="light" selected>Lightly active — 1–3 workouts/week</option>
+            <option value="moderate">Moderately active — 3–5 workouts/week</option>
+            <option value="very">Very active — 6–7 workouts/week</option>
+            <option value="extra">Extra active — physical job + training</option>
+          </select>
+        </div>
+        <div class="ob-result hidden" id="ob-result">
+          <div class="ob-result-big"><span id="ob-target">—</span> kcal/day</div>
+          <div class="ob-result-sub" id="ob-macros"></div>
+        </div>
+      </div>
+
+      <div class="ob-actions">
+        <button type="button" class="btn btn-ghost hidden" id="ob-back">← Back</button>
+        <button type="button" class="btn btn-primary" id="ob-next">Next →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== APP SHELL ===================== -->
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div class="side-logo"><span class="logo-badge">V</span><span class="logo-text">VEXIEN</span></div>
+    <nav class="side-nav">
+      <button class="nav-item active" data-view="dashboard"><span class="nav-ico">🏠</span>Dashboard</button>
+      <button class="nav-item" data-view="diet"><span class="nav-ico">🍎</span>Diet</button>
+      <button class="nav-item" data-view="fitness"><span class="nav-ico">🏋️</span>Fitness</button>
+      <button class="nav-item" data-view="weight"><span class="nav-ico">⚖️</span>Weight</button>
+      <button class="nav-item" data-view="analytics"><span class="nav-ico">📊</span>Analytics</button>
+      <button class="nav-item" data-view="challenges"><span class="nav-ico">🎯</span>Challenges</button>
+      <button class="nav-item" data-view="social"><span class="nav-ico">👥</span>Social</button>
+      <button class="nav-item" data-view="achievements"><span class="nav-ico">🏆</span>Achievements</button>
+      <button class="nav-item" data-view="settings"><span class="nav-ico">⚙️</span>Settings</button>
+    </nav>
+    <div class="side-foot">
+      <div class="side-streak" id="side-streak">🔥 0 day streak</div>
+    </div>
+  </aside>
+
+  <header id="topbar">
+    <div class="top-left">
+      <span class="logo-badge mini">V</span>
+      <div class="top-title">
+        <strong id="topbar-title">Dashboard</strong>
+        <span id="today-date"></span>
+      </div>
+    </div>
+    <div class="top-right">
+      <button class="icon-btn" id="quick-water" title="Log a glass of water">💧</button>
+      <div class="notif-wrap">
+        <button class="icon-btn" id="notif-bell" title="Notifications">🔔<span class="notif-count hidden" id="notif-count">0</span></button>
+        <div class="dropdown hidden" id="notif-dropdown">
+          <div class="dd-head">Notifications <button class="link-btn" id="mark-all-read">Mark all read</button></div>
+          <div class="dd-body" id="notif-list"></div>
+        </div>
+      </div>
+      <div class="avatar-wrap">
+        <button class="icon-btn avatar-btn" id="avatar-btn" title="Profile"><span id="avatar-inner">🙂</span></button>
+        <div class="dropdown hidden" id="user-menu">
+          <div class="dd-head" id="menu-user-name">User</div>
+          <button class="dd-item" data-act="settings">⚙️ Settings &amp; Profile</button>
+          <button class="dd-item" data-act="theme">🌙 Toggle dark mode</button>
+          <button class="dd-item" data-act="logout">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="view-dashboard" class="view active"><div class="view-inner" id="dashboard-root"></div></section>
+    <section id="view-diet" class="view"><div class="view-inner" id="diet-root"></div></section>
+    <section id="view-fitness" class="view"><div class="view-inner" id="fitness-root"></div></section>
+    <section id="view-weight" class="view"><div class="view-inner" id="weight-root"></div></section>
+    <section id="view-analytics" class="view"><div class="view-inner" id="analytics-root"></div></section>
+    <section id="view-challenges" class="view"><div class="view-inner" id="challenges-root"></div></section>
+    <section id="view-social" class="view"><div class="view-inner" id="social-root"></div></section>
+    <section id="view-achievements" class="view"><div class="view-inner" id="achievements-root"></div></section>
+    <section id="view-settings" class="view"><div class="view-inner" id="settings-root"></div></section>
+  </main>
+
+  <nav id="bottom-nav">
+    <button class="bn-item active" data-view="dashboard"><span>🏠</span>Home</button>
+    <button class="bn-item" data-view="diet"><span>🍎</span>Diet</button>
+    <button class="bn-item bn-center" data-view="fitness"><span>🏋️</span>Fitness</button>
+    <button class="bn-item" data-view="weight"><span>⚖️</span>Weight</button>
+    <button class="bn-item" id="bn-more"><span>⋯</span>More</button>
+  </nav>
+  <div class="sheet-backdrop hidden" id="more-sheet-backdrop">
+    <div class="sheet" id="more-sheet">
+      <div class="sheet-title">More</div>
+      <div class="sheet-grid">
+        <button class="sheet-item" data-view="analytics">📊<span>Analytics</span></button>
+        <button class="sheet-item" data-view="challenges">🎯<span>Challenges</span></button>
+        <button class="sheet-item" data-view="social">👥<span>Social</span></button>
+        <button class="sheet-item" data-view="achievements">🏆<span>Achievements</span></button>
+        <button class="sheet-item" data-view="settings">⚙️<span>Settings</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<div id="confetti-root"></div>
+
+<!-- ===================== APP SCRIPTS ===================== -->
+<script src="firebase-config.js"></script>
+<script src="data/foods.js"></script>
+<script src="data/exercises.js"></script>
+<script src="data/recipes.js"></script>
+<script src="data/content.js"></script>
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script src="diet.js"></script>
+<script src="fitness.js"></script>
+<script src="analytics.js"></script>
+<script src="social.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
